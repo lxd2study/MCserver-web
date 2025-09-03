@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+
+{% block title %}我的世界服务器官网{% endblock %}
+
+{% block content %}
+<h1>🎮 我的世界公益服务器官网——By LXD</h1>
+
+<!-- 服务器列表 -->
+<h2>🌐 服务器列表</h2>
+<div class="server-grid">
+    {% for server in servers %}
+    <div class="server-card">
+        <h3 class="server-name">{{ server.name }}</h3>
+        <div data-server-id="{{ server.id }}" style="hide">{{ server.id }}</div>
+        <div class="server-info">
+            <span class="server-status {{ 'status-online' if server.is_online else 'status-offline' }}"
+                id="status-{{ server.id }}">
+                {{ '在线' if server.is_online else '离线' }}
+            </span>
+            <span> | </span>
+            <span id="players-{{ server.id }}">{{ server.current_players }}/{{ server.max_players }}</span>
+        </div>
+        <div class="server-info">
+            <strong>地址:</strong> {{ server.ip }}:{{ server.port }}
+        </div>
+        <div class="server-info">
+            <strong>版本:</strong> {{ server.version }}
+        </div>
+        {% if server.description %}
+        <div class="server-description">
+            {{ server.description }}
+        </div>
+        {% endif %}
+    </div>
+    {% else %}
+    <div class="server-card">
+        <p>暂无服务器信息</p>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- 整合包下载 -->
+<h2>📦 整合包下载</h2>
+<div class="pack-grid">
+    {% for pack in packs %}
+    <div class="pack-card">
+        <h3 class="pack-name">{{ pack.name }}</h3>
+        <div class="pack-version">版本: {{ pack.version }}</div>
+        <div class="pack-info">下载次数: {{ pack.download_count }}</div>
+        {% if pack.description %}
+        <div class="pack-description">{{ pack.description }}</div>
+        {% endif %}
+        <a href="{{ url_for('download_pack', pack_id=pack.id) }}" class="download-btn">
+            下载整合包
+        </a>
+    </div>
+    {% else %}
+    <div class="pack-card">
+        <p>暂无整合包</p>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- 网站信息 + 版权/友链 -->
+<footer class="site-footer">
+    <section class="info">
+        <h3>📊 网站信息</h3>
+        <p>已运行 <strong>{{ uptime_days }}</strong> 天</p>
+        <p>微信：<b>LXD-FUN</b> · QQ：<b>2966918467</b></p>
+        <p>扫码赞助 → 得管理员权限 + 免费开服</p>
+        <img src="{{ url_for('static', filename='images/qrcode_donate.png') }}" alt="赞助码">
+    </section>
+
+    <section class="copyright">
+        © 2023-2025 我的世界公益服务器官网 · All Rights Reserved
+        <br>
+        友情链接：
+        <a href="https://www.mcbbs.net" target="_blank">MCBBS</a>
+        <a href="https://mcmod.cn" target="_blank">MC百科</a>
+        <a href="https://www.mojang.com" target="_blank">Mojang</a>
+    </section>
+</footer>
+
+<style>
+    .site-footer {
+        margin: 2rem 0 0;
+        padding: 1.5rem 1rem;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: #fff;
+        border-radius: 8px;
+        text-align: center;
+        font-size: 0.9rem;
+    }
+
+    .site-footer h3 {
+        margin: 0 0 0.5rem;
+        font-size: 1.2rem;
+    }
+
+    .site-footer p {
+        margin: 0.2rem 0;
+    }
+
+    .site-footer img {
+        width: 110px;
+        border-radius: 6px;
+        margin: 0.6rem 0;
+    }
+
+    .site-footer .copyright {
+        margin-top: 1rem;
+        padding-top: 0.8rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .site-footer a {
+        margin: 0 0.4rem;
+        color: #fff;
+        font-weight: bold;
+    }
+</style>
+{% endblock %}
