@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block title %}上传整合包{% endblock %}
+
+{% block content %}
+<div class="login-form">
+    <h2>📦 上传整合包</h2>
+
+    <div class="form-group">
+        <label>整合包名称:</label>
+        <input type="text" id="name" required>
+    </div>
+
+    <div class="form-group">
+        <label>版本:</label>
+        <input type="text" id="version" required>
+    </div>
+
+    <div class="form-group">
+        <label>选择文件:</label>
+        <input type="file" id="fileInput" accept=".zip,.rar,.7z" required>
+        <small style="color: #666;">支持 ZIP, RAR, 7Z 格式</small>
+    </div>
+
+    <div class="form-group">
+        <label>整合包介绍:</label>
+        <textarea id="description" rows="4" style="width:100%; padding:10px; border:2px solid #ddd; border-radius:5px;"></textarea>
+    </div>
+
+    <button type="button" id="uploadBtn" class="submit-btn">开始上传</button>
+
+    <div id="progressBar" style="display:none; width:100%; height:8px; background:#eee; border-radius:4px; margin-top:12px;">
+        <div id="progressInner" style="height:100%; width:0; background:#667eea;"></div>
+    </div>
+
+    <a href="{{ url_for('admin_dashboard') }}" style="display:inline-block; margin-top:10px; color:#667eea; text-decoration:none;">返回管理后台</a>
+</div>
+
+<script>
+/* 兼容非 HTTPS 的 uuid */
+function uuidv4() {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+    const r = Math.random() * 16 | 0;
+    return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+  });
+}
+
+const CHUNK = 10 * 1024 * 1024;
+const btn       = document.getElementById('uploadBtn');
+const fileInput = document.getElementById('fileInput');
+const inner     = document.getElementById('progressInner');
+const bar       = document.getElementById('progressBar');
+
+btn.onclick = async () => {
+  const file = fileInput.files[0];
+  if (!file) return alert('请选择文件');
+
+  const uuid  = uuidv4();
+  const total = Math.ceil(file.size / CHUNK);
+
+  btn.disabled = true;
+  bar.style.display = 'block';
+
+  /* 1. 上传所有分片 */
+  for (let i = 0; i < total; i++) {
+    const fd = new FormData();
+    fd.append('file', file.slice(i * CHUNK, (i + 1) * CHUNK));
+    fd.append('chunk', i);
+    fd.append('chunks', total);
+    fd.append('uuid', uuid);
+    fd.append('filename', file.name);
+
+    await fetch("{{ url_for('upload_pack') }}", {method: 'POST', body: fd});
+    inner.style.width = ((i + 1) / total * 100).toFixed(0) + '%';
+  }
+
+  /* 2. 合并 */
+  const merge = new FormData();
+  merge.append('uuid', uuid);
+  merge.append('filename', file.name);
+  merge.append('name', document.getElementById('name').value);
+  merge.append('version', document.getElementById('version').value);
+  merge.append('description', document.getElementById('description').value);
+  merge.append('total_chunks', total);
+
+  const resp = await fetch("{{ url_for('upload_pack') }}", {method: 'POST', body: merge});
+  if (!resp.ok) {
+    const text = await resp.text();
+    alert('合并失败：' + text.slice(0, 300));
+    btn.disabled = false;
+    return;
+  }
+
+  const data = await resp.json();
+  if (data.status === 'done') {
+    window.location.href = data.redirect;
+  }
+};
+</script>
+{% endblock %}
