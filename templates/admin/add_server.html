@@ -1,0 +1,38 @@
+ 
+{% extends "base.html" %}
+
+{% block title %}{{ '添加服务器' if not server else '编辑服务器' }}{% endblock %}
+
+{% block content %}
+    <div class="login-form">
+        <h2>🔧 {{ '添加服务器' if not server else '编辑服务器' }}</h2>
+        <form method="POST">
+            <div class="form-group">
+                <label for="name">服务器名称:</label>
+                <input type="text" id="name" name="name" value="{{ server.name if server else '' }}" required>
+            </div>
+            <div class="form-group">
+                <label for="ip">服务器IP:</label>
+                <input type="text" id="ip" name="ip" value="{{ server.ip if server else '' }}" required>
+            </div>
+            <div class="form-group">
+                <label for="port">端口:</label>
+                <input type="number" id="port" name="port" value="{{ server.port if server else 25565 }}" required>
+            </div>
+            <div class="form-group">
+                <label for="version">版本:</label>
+                <input type="text" id="version" name="version" value="{{ server.version if server else '' }}" required>
+            </div>
+            <div class="form-group">
+                <label for="max_players">最大玩家数:</label>
+                <input type="number" id="max_players" name="max_players" value="{{ server.max_players if server else 20 }}" required>
+            </div>
+            <div class="form-group">
+                <label for="description">服务器介绍:</label>
+                <textarea id="description" name="description" rows="4" style="width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 5px;">{{ server.description if server else '' }}</textarea>
+            </div>
+            <button type="submit" class="submit-btn">{{ '添加' if not server else '更新' }}服务器</button>
+            <a href="{{ url_for('admin_dashboard') }}" style="display: inline-block; margin-top: 10px; color: #667eea; text-decoration: none;">返回管理后台</a>
+        </form>
+    </div>
+{% endblock %}
