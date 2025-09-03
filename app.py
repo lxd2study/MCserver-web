@@ -155,7 +155,6 @@ def logout():
 def admin_dashboard():
     servers = Server.query.all()
     packs = ResourcePack.query.all()
-    print(servers[0].name)
     return render_template('admin/dashboard.html', servers=servers, packs=packs)
 
 @app.route('/admin/add_server', methods=['GET', 'POST'])
