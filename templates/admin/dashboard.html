@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+
+{% block title %}管理后台{% endblock %}
+
+{% block content %}
+    <h1>🔧 管理后台</h1>
+
+    <div class="admin-panel">
+        <h2 style="color:#667eea">操作面板</h2>
+        <div style="margin: 20px 0;">
+            <a href="{{ url_for('add_server') }}" class="download-btn">添加服务器</a>
+            <a href="{{ url_for('upload_pack') }}" class="download-btn" style="margin-left: 10px;">上传整合包</a>
+        </div>
+    </div>
+
+    <!-- 服务器管理 -->
+    <div class="admin-panel">
+        <h2 style="color:#667eea">📋 服务器管理</h2>
+        {% if servers %}
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr style="background: #f0f0f0;">
+                        <th style="padding: 10px; text-align: left;">服务器名称</th>
+                        <th style="padding: 10px; text-align: left;">id</th>
+                        <th style="padding: 10px; text-align: left;">地址</th>
+                        <th style="padding: 10px; text-align: left;">版本</th>
+                        <th style="padding: 10px; text-align: left;">状态</th>
+                        <th style="padding: 10px; text-align: left;">在线玩家</th>
+                        <th style="padding: 10px; text-align: left;">操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for server in servers %}
+                        <tr style="border-bottom: 1px solid #ddd;">
+                            <td style="padding: 10px;">{{ server.name }}</td>
+
+                            <!-- 用于 JS 收集 serverId 的单元格 -->
+                            <td data-server-id="{{ server.id }}" style="padding: 10px;">{{ server.id }}</td>
+
+                            <td style="padding: 10px;">{{ server.ip }}:{{ server.port }}</td>
+                            <td style="padding: 10px;">{{ server.version }}</td>
+
+                            <!-- 状态列 -->
+                            <td style="padding: 10px;">
+                                <span id="status-{{ server.id }}"
+                                      class="server-status {{ 'status-online' if server.is_online else 'status-offline' }}">
+                                    {{ '在线' if server.is_online else '离线' }}
+                                </span>
+                            </td>
+
+                            <!-- 在线玩家列 -->
+                            <td style="padding: 10px;">
+                                <span id="players-{{ server.id }}">
+                                    {{ server.current_players }}/{{ server.max_players }}
+                                </span>
+                            </td>
+
+                            <td style="padding: 10px;">
+                                <div class="admin-actions">
+                                    <a href="{{ url_for('edit_server', server_id=server.id) }}" class="admin-btn btn-edit">编辑</a>
+                                    <a href="{{ url_for('delete_server', server_id=server.id) }}" class="admin-btn btn-delete">删除</a>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>暂无服务器</p>
+        {% endif %}
+    </div>
+
+    <!-- 整合包管理 -->
+    <div class="admin-panel">
+        <h2 style="color:#667eea">📦 整合包管理</h2>
+        {% if packs %}
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr style="background: #f0f0f0;">
+                        <th style="padding: 10px; text-align: left;">整合包名称</th>
+                        <th style="padding: 10px; text-align: left;">版本</th>
+                        <th style="padding: 10px; text-align: left;">下载次数</th>
+                        <th style="padding: 10px; text-align: left;">操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for pack in packs %}
+                        <tr style="border-bottom: 1px solid #ddd;">
+                            <td style="padding: 10px;">{{ pack.name }}</td>
+                            <td style="padding: 10px;">{{ pack.version }}</td>
+                            <td style="padding: 10px;">{{ pack.download_count }}</td>
+                            <td style="padding: 10px;">
+                                <div class="admin-actions">
+                                    <a href="{{ url_for('download_pack', pack_id=pack.id) }}" class="admin-btn btn-edit">下载</a>
+                                    <a href="{{ url_for('delete_pack', pack_id=pack.id) }}" class="admin-btn btn-delete">删除</a>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>暂无整合包</p>
+        {% endif %}
+    </div>
+{% endblock %}
